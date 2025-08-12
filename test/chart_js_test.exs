@@ -12,9 +12,10 @@ defmodule ChartJSTest do
     end
 
     test "ChartComponent implements LiveComponent behaviour" do
-      behaviours = ChartJs.ChartComponent.__info__(:attributes)
-                   |> Keyword.get_values(:behaviour)
-                   |> List.flatten()
+      behaviours =
+        ChartJs.ChartComponent.__info__(:attributes)
+        |> Keyword.get_values(:behaviour)
+        |> List.flatten()
 
       assert Phoenix.LiveComponent in behaviours
     end
@@ -118,7 +119,7 @@ defmodule ChartJSTest do
       }
 
       datasets = indexed_event["datasets"]
-      
+
       Enum.each(datasets, fn dataset ->
         assert Map.has_key?(dataset, "datasetIndex")
         assert is_integer(dataset["datasetIndex"])
@@ -139,7 +140,16 @@ defmodule ChartJSTest do
 
   describe "Chart types support" do
     test "supports all common chart types" do
-      supported_types = ["bar", "line", "pie", "doughnut", "radar", "polarArea", "bubble", "scatter"]
+      supported_types = [
+        "bar",
+        "line",
+        "pie",
+        "doughnut",
+        "radar",
+        "polarArea",
+        "bubble",
+        "scatter"
+      ]
 
       for chart_type <- supported_types do
         config = %{type: chart_type}

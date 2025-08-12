@@ -30,6 +30,7 @@ defmodule ChartJs.ChartComponentTest do
 
     test "encodes config and data as JSON" do
       config = %{type: "line", responsive: true}
+
       data = %{
         "labels" => ["Jan", "Feb", "Mar"],
         "datasets" => [
@@ -71,7 +72,7 @@ defmodule ChartJs.ChartComponentTest do
         }
 
         html = render_component(ChartComponent, assigns)
-        
+
         # Check for chart type in HTML (encoded as HTML entities)
         assert html =~ chart_type
         assert html =~ "data-config="

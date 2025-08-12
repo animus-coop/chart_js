@@ -1,6 +1,6 @@
 defmodule ChartJs.ChartLiveTest do
   use ExUnit.Case, async: false
-  
+
   import ChartJs.TestHelpers
 
   # Mock LiveView for testing chart integration
@@ -45,7 +45,7 @@ defmodule ChartJs.ChartLiveTest do
         "label" => "New Point",
         "datasets" => [%{"data" => 42}]
       })
-      
+
       {:noreply, socket}
     end
 
@@ -56,7 +56,7 @@ defmodule ChartJs.ChartLiveTest do
         "label" => "Sales Point",
         "datasets" => [%{"data" => 100}]
       })
-      
+
       {:noreply, socket}
     end
 
@@ -78,11 +78,12 @@ defmodule ChartJs.ChartLiveTest do
     test "validates LiveView module structure" do
       # Test that the TestChartLive module is properly defined
       assert Code.ensure_loaded?(TestChartLive)
-      
+
       # Test that it implements LiveView behaviour
-      behaviours = TestChartLive.__info__(:attributes)
-                   |> Keyword.get_values(:behaviour)
-                   |> List.flatten()
+      behaviours =
+        TestChartLive.__info__(:attributes)
+        |> Keyword.get_values(:behaviour)
+        |> List.flatten()
 
       assert Phoenix.LiveView in behaviours
     end
@@ -90,7 +91,7 @@ defmodule ChartJs.ChartLiveTest do
     test "validates chart component rendering logic" do
       # Test the render function structure
       _assigns = %{chart_data: sample_chart_data()}
-      
+
       # The render function should not crash with valid assigns
       assert function_exported?(TestChartLive, :render, 1)
     end
@@ -98,10 +99,10 @@ defmodule ChartJs.ChartLiveTest do
     test "validates event handlers" do
       # Test that event handlers are defined
       assert function_exported?(TestChartLive, :handle_event, 3)
-      
+
       # Test event handler logic with mock socket
       socket = mock_socket()
-      
+
       # Should not crash when calling event handlers
       assert {:noreply, _socket} = TestChartLive.handle_event("add_data", %{}, socket)
       assert {:noreply, _socket} = TestChartLive.handle_event("add_targeted_data", %{}, socket)
@@ -110,7 +111,7 @@ defmodule ChartJs.ChartLiveTest do
     test "validates initial chart data structure" do
       # Test the initial_chart_data function
       initial_data = TestChartLive.initial_chart_data()
-      
+
       assert Map.has_key?(initial_data, "labels")
       assert Map.has_key?(initial_data, "datasets")
       assert is_list(initial_data["labels"])
@@ -160,7 +161,7 @@ defmodule ChartJs.ChartLiveTest do
       # Verify multiple dataset structure
       datasets = multi_dataset_event["datasets"]
       assert length(datasets) == 3
-      
+
       Enum.each(datasets, fn dataset ->
         assert Map.has_key?(dataset, "datasetIndex")
         assert Map.has_key?(dataset, "data")

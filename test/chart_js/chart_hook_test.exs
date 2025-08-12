@@ -1,6 +1,6 @@
 defmodule ChartJs.ChartHookTest do
   use ExUnit.Case, async: false
-  
+
   import ChartJs.TestHelpers
 
   describe "Chart Hook Event Handling" do
@@ -8,11 +8,11 @@ defmodule ChartJs.ChartHookTest do
       # Test basic event structure
       basic_event = add_data_event("March", 25)
       assert validate_event_structure(basic_event)
-      
+
       # Test event with multiple datasets
       multi_event = multi_dataset_add_event([10, 20, 30])
       assert validate_event_structure(multi_event)
-      
+
       # Test targeted event
       targeted_event = targeted_add_data_event("sales_chart", "April", 35)
       assert validate_event_structure(targeted_event)
@@ -57,21 +57,21 @@ defmodule ChartJs.ChartHookTest do
     test "hook targeting logic simulation" do
       # Simulate hook targeting logic
       chart_id = "sales_chart"
-      
+
       # Event with matching target
       matching_event = %{
         "target" => "sales_chart",
         "label" => "Sales Update",
         "datasets" => [%{"data" => 100}]
       }
-      
+
       # Event with non-matching target
       non_matching_event = %{
-        "target" => "users_chart", 
+        "target" => "users_chart",
         "label" => "Users Update",
         "datasets" => [%{"data" => 50}]
       }
-      
+
       # Event without target (should apply to all)
       global_event = %{
         "label" => "Global Update",
@@ -79,8 +79,12 @@ defmodule ChartJs.ChartHookTest do
       }
 
       # Simulate hook logic: if target && target !== this.el.id, return
-      should_process_matching = !(matching_event["target"] && matching_event["target"] != chart_id)
-      should_process_non_matching = !(non_matching_event["target"] && non_matching_event["target"] != chart_id)
+      should_process_matching =
+        !(matching_event["target"] && matching_event["target"] != chart_id)
+
+      should_process_non_matching =
+        !(non_matching_event["target"] && non_matching_event["target"] != chart_id)
+
       should_process_global = !(global_event["target"] && global_event["target"] != chart_id)
 
       assert should_process_matching == true
@@ -91,24 +95,29 @@ defmodule ChartJs.ChartHookTest do
     test "chart data update simulation" do
       # Simulate chart data before update
       initial_data = sample_chart_data()
-      
+
       # Simulate adding a new data point
       new_label = "May"
       new_data_point = 40
-      
+
       # Simulate the hook's addData logic
       updated_labels = initial_data["labels"] ++ [new_label]
-      
+
       first_dataset = List.first(initial_data["datasets"])
-      updated_first_dataset = %{first_dataset | "data" => first_dataset["data"] ++ [new_data_point]}
+
+      updated_first_dataset = %{
+        first_dataset
+        | "data" => first_dataset["data"] ++ [new_data_point]
+      }
+
       updated_datasets = [updated_first_dataset | tl(initial_data["datasets"])]
-      
+
       updated_data = %{initial_data | "labels" => updated_labels, "datasets" => updated_datasets}
-      
+
       # Verify the update
       assert length(updated_data["labels"]) == length(initial_data["labels"]) + 1
       assert List.last(updated_data["labels"]) == new_label
-      
+
       first_updated_dataset = List.first(updated_data["datasets"])
       assert length(first_updated_dataset["data"]) == length(first_dataset["data"]) + 1
       assert List.last(first_updated_dataset["data"]) == new_data_point
@@ -117,35 +126,40 @@ defmodule ChartJs.ChartHookTest do
     test "multiple dataset update simulation" do
       # Start with multi-dataset data
       initial_data = multi_dataset_data()
-      
+
       # Simulate updating multiple datasets with different values
       dataset_updates = [
-        %{"datasetIndex" => 0, "data" => 1600},  # Revenue
-        %{"datasetIndex" => 1, "data" => 450},   # Profit
-        %{"datasetIndex" => 2, "data" => 1150}   # Expenses
+        # Revenue
+        %{"datasetIndex" => 0, "data" => 1600},
+        # Profit
+        %{"datasetIndex" => 1, "data" => 450},
+        # Expenses
+        %{"datasetIndex" => 2, "data" => 1150}
       ]
-      
+
       # Simulate the hook's logic for multiple dataset updates
-      updated_datasets = 
+      updated_datasets =
         initial_data["datasets"]
         |> Enum.with_index()
         |> Enum.map(fn {dataset, index} ->
           case Enum.find(dataset_updates, &(&1["datasetIndex"] == index)) do
             %{"data" => new_data} ->
               %{dataset | "data" => dataset["data"] ++ [new_data]}
+
             nil ->
               dataset
           end
         end)
-      
+
       updated_data = %{initial_data | "datasets" => updated_datasets}
-      
+
       # Verify all datasets were updated
       Enum.with_index(updated_data["datasets"], fn dataset, index ->
         original_dataset = Enum.at(initial_data["datasets"], index)
         assert length(dataset["data"]) == length(original_dataset["data"]) + 1
-        
+
         expected_update = Enum.find(dataset_updates, &(&1["datasetIndex"] == index))
+
         if expected_update do
           assert List.last(dataset["data"]) == expected_update["data"]
         end
@@ -215,11 +229,16 @@ defmodule ChartJs.ChartHookTest do
   describe "Error Handling" do
     test "handles invalid event structures gracefully" do
       invalid_events = [
-        %{},  # Missing datasets
-        %{"datasets" => nil},  # Null datasets
-        %{"datasets" => "invalid"},  # String instead of array
-        %{"datasets" => [%{}]},  # Dataset without data
-        %{"datasets" => [%{"data" => nil}]}  # Dataset with null data
+        # Missing datasets
+        %{},
+        # Null datasets
+        %{"datasets" => nil},
+        # String instead of array
+        %{"datasets" => "invalid"},
+        # Dataset without data
+        %{"datasets" => [%{}]},
+        # Dataset with null data
+        %{"datasets" => [%{"data" => nil}]}
       ]
 
       Enum.each(invalid_events, fn event ->
@@ -232,12 +251,12 @@ defmodule ChartJs.ChartHookTest do
       negative_index_event = %{
         "datasets" => [%{"datasetIndex" => -1, "data" => 10}]
       }
-      
+
       # Very large datasetIndex
       large_index_event = %{
         "datasets" => [%{"datasetIndex" => 999, "data" => 10}]
       }
-      
+
       # Both should have valid structure but may not work in practice
       assert validate_event_structure(negative_index_event)
       assert validate_event_structure(large_index_event)
@@ -248,13 +267,13 @@ defmodule ChartJs.ChartHookTest do
       no_label_event = %{
         "datasets" => [%{"data" => 42}]
       }
-      
+
       # Event without target
       no_target_event = %{
         "label" => "Test",
         "datasets" => [%{"data" => 42}]
       }
-      
+
       assert validate_event_structure(no_label_event)
       assert validate_event_structure(no_target_event)
     end

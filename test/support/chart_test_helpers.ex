@@ -93,7 +93,7 @@ defmodule ChartJs.TestHelpers do
   Creates multi-dataset add_chart_data event payload
   """
   def multi_dataset_add_event(datasets_data) do
-    datasets = 
+    datasets =
       datasets_data
       |> Enum.with_index()
       |> Enum.map(fn {data, index} ->
@@ -142,7 +142,9 @@ defmodule ChartJs.TestHelpers do
           {:ok, decoded} -> {:ok, decoded}
           error -> error
         end
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -173,15 +175,17 @@ defmodule ChartJs.TestHelpers do
 
     # Check required keys
     has_required = Enum.all?(required_keys, &Map.has_key?(event_data, &1))
-    
+
     # Validate datasets structure
-    valid_datasets = 
+    valid_datasets =
       case event_data["datasets"] do
         datasets when is_list(datasets) ->
           Enum.all?(datasets, fn dataset ->
             is_map(dataset) and Map.has_key?(dataset, "data") and not is_nil(dataset["data"])
           end)
-        _ -> false
+
+        _ ->
+          false
       end
 
     has_required and valid_datasets
