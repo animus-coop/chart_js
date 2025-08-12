@@ -64,7 +64,6 @@ defmodule ChartJS do
 
   Update charts dynamically using `push_event`:
 
-      ```elixir
       # Add data to all charts
       push_event(socket, "add_chart_data", %{
         "label" => "New Point",
@@ -74,16 +73,15 @@ defmodule ChartJS do
       # Add data to specific chart
       push_event(socket, "add_chart_data", %{
         "target" => "my_chart",
-        "label" => "New Point", 
+        "label" => "New Point",
         "datasets" => [%{"data" => 42}]
       })
-      ```
 
   ## Chart Types
 
   Supported chart types include:
   - `"bar"` - Bar charts
-  - `"line"` - Line charts  
+  - `"line"` - Line charts
   - `"pie"` - Pie charts
   - `"doughnut"` - Doughnut charts
   - `"radar"` - Radar charts
@@ -93,7 +91,7 @@ defmodule ChartJS do
 
   ## Configuration
 
-  Charts accept any valid Chart.js configuration. See the 
+  Charts accept any valid Chart.js configuration. See the
   [Chart.js documentation](https://www.chartjs.org/docs/) for complete options.
 
   ## Examples
